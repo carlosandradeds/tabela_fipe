@@ -1,6 +1,6 @@
+from data_ingestion.modelo import Veiculo, Session
 import requests
 from sqlalchemy.orm.exc import NoResultFound
-from .modelo import Veiculo, Session
 
 def get_data(url):
     try:
@@ -32,8 +32,7 @@ def save_vehicle(session, veiculo, codigo_marca, codigo_modelo, codigo_ano):
             valor=float(veiculo.get('Valor').replace('R$', '').replace('.', '').replace(',', '.').strip()) if veiculo.get('Valor') else None,
             combustivel=veiculo.get('Combustivel'),
             referencia=veiculo.get('MesReferencia'),
-            fipe_codigo=veiculo.get('CodigoFipe'),
-            ano_modelo=veiculo.get('AnoModelo')
+            fipe_codigo=veiculo.get('CodigoFipe')
         )
         session.add(novo_veiculo)
         session.commit()

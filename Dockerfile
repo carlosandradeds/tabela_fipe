@@ -8,26 +8,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Instalar pipenv
-RUN pip install pipenv
-
 # Definir o diretório de trabalho no container
 WORKDIR /app
 
 # Copiar o Pipfile e o Pipfile.lock para o diretório de trabalho
 COPY Pipfile Pipfile.lock ./
 
-# Instalar as dependências do projeto
-RUN pipenv install --deploy --system
+# Instalar as dependências usando pipenv para criar um virtualenv
+RUN pip install pipenv && pipenv install --deploy
 
 # Copiar o restante do código para o diretório de trabalho
 COPY . .
 
-# Copiar os DAGs do Airflow para o diretório do Airflow
-COPY dags/ /opt/airflow/dags/
-
-# Expor a porta do Airflow
-EXPOSE 8080
-
-# Comando padrão para rodar o Airflow scheduler e o webserver
-CMD ["airflow", "webserver"]
+# Especificar o comando para rodar o airflow e o Python dentro do ambiente virtual gerenciado pelo pipenv
+CMD ["pipenv", "run", "airflow", "webserver"]
