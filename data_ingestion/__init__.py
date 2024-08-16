@@ -1,0 +1,1 @@
+# Este arquivo indica que o diretório 'data_ingestion' é um pacote Python.
