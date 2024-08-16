@@ -1,0 +1,72 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches
+*.cache
+*.log
+
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Pipenv
+Pipfile.lock
+
+# Pytest
+.cache/
+*.cover
+coverage/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.sqlite3
+
+# Local database and credentials
+*.sqlite3
+db.sqlite3
+*.db
+*.dat
+*.pdb
+*.sav
+
+# Docker
+docker-compose.override.yml
+logs/
+*.pid
+*.seed
+*.sqlite3
+
+# Airflow
+logs/
+config/
+plugins/
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.idea/
