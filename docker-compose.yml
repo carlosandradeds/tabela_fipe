@@ -1,70 +1,66 @@
 version: '3.3'
 
 services:
-  db:
+  postgres:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: fipe
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
-  app:
-    build: .
-    command: ["pipenv", "run", "python", "data_ingestion/insercao_dados.py"]
-    volumes:
-      - .:/app
-    environment:
-      DATABASE_URL: postgres://user:password@db:5432/fipe
-    depends_on:
-      - db
-
   airflow-init:
-    image: apache/airflow:2.5.1
+    image: apache/airflow:2.6.3
+    depends_on:
+      - postgres
     environment:
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__API__AUTH_BACKEND: "airflow.api.auth.backend.basic_auth"
     entrypoint: >
-      /bin/bash -c "
-      airflow db upgrade;
-      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com;
+      bash -c "
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
       "
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
-    depends_on:
-      - db
+    restart: "no"
 
   airflow-webserver:
-    image: apache/airflow:2.5.1
+    image: apache/airflow:2.6.3
     depends_on:
       - airflow-init
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://user:password@db:5432/airflow
-      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     ports:
       - "8080:8080"
+    command: webserver
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+    restart: "always"
 
   airflow-scheduler:
-    image: apache/airflow:2.5.1
+    image: apache/airflow:2.6.3
     depends_on:
       - airflow-init
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://user:password@db:5432/airflow
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+    command: scheduler
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+    restart: "always"
 
 volumes:
   postgres_data:
-  airflow_data:
