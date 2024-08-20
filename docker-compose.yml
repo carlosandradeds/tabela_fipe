@@ -26,10 +26,14 @@ services:
       airflow db init &&
       airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com
       "
+    env_file:
+      - .env
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./data_ingestion:/opt/airflow/data_ingestion
+      - ./config:/opt/airflow/config
     restart: "no"
 
   airflow-webserver:
@@ -39,6 +43,9 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      PYTHONPATH: "/opt/airflow/dags:/opt/airflow"
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     command: webserver
@@ -46,6 +53,8 @@ services:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./data_ingestion:/opt/airflow/data_ingestion
+      - ./config:/opt/airflow/config
     restart: "always"
 
   airflow-scheduler:
@@ -55,11 +64,16 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      PYTHONPATH: "/opt/airflow/dags:/opt/airflow"
+    env_file:
+      - .env
     command: scheduler
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
+      - ./data_ingestion:/opt/airflow/data_ingestion
+      - ./config:/opt/airflow/config
     restart: "always"
 
 volumes:

@@ -15,4 +15,6 @@ RUN pip install pipenv && pipenv install --deploy
 
 COPY . .
 
+ENV PYTHONPATH="${PYTHONPATH}:/app"
+
 CMD ["pipenv", "run", "airflow", "python", "-m", "data_ingestion.insercao_dados", "webserver"]
